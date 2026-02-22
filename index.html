@@ -2,154 +2,423 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Life Jacket – Live Monitor</title>
+  <title>Smart Life Jacket • Live + Logger + Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
+      background: #0b1120;
+      color: #e2e8f0;
       margin: 0;
       padding: 20px;
     }
-
     h1 {
       text-align: center;
+      font-weight: 400;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      margin: 0 0 20px 0;
       color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-
+    h1 span {
+      background: #1e293b;
+      font-size: 0.9rem;
+      padding: 4px 12px;
+      border-radius: 40px;
+      color: #94a3b8;
+      font-weight: 300;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 20px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    /* live card panel */
     .card {
       background: #020617;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 15px auto;
-      max-width: 400px;
-      box-shadow: 0 0 15px rgba(56,189,248,0.2);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.8), 0 0 0 1px #1e293b;
+      transition: box-shadow 0.2s;
     }
-
+    .card:hover {
+      box-shadow: 0 20px 30px -10px #0f2b44, 0 0 0 1px #2563eb;
+    }
     .row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #1e293b;
+      padding: 14px 8px;
+      border-bottom: 1px solid #1e2a3a;
+      font-size: 1.1rem;
     }
-
-    .row:last-child {
-      border-bottom: none;
-    }
-
+    .row:last-child { border-bottom: none; }
     .label {
-      color: #94a3b8;
+      color: #9aa8b9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
+    .label i { opacity: 0.7; width: 22px; }
     .value {
-      font-weight: bold;
+      font-weight: 600;
+      background: #0f1a24;
+      padding: 4px 14px;
+      border-radius: 40px;
       color: #22c55e;
     }
+    .danger { color: #ef4444 !important; background: #2d1a1a; }
+    .warning { color: #facc15 !important; background: #2a2416; }
+    .normal { color: #22c55e !important; background: #0a2e1a; }
 
-    .danger {
-      color: #ef4444;
+    /* log table area */
+    .log-section {
+      background: #020617;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.8), 0 0 0 1px #1e293b;
+      display: flex;
+      flex-direction: column;
     }
-
-    .warning {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      color: #94a3b8;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-weight: 400;
+      font-size: 1.5rem;
       color: #facc15;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
+    .clear-btn {
+      background: #1e293b;
+      border: none;
+      color: #f87171;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid #3b4a5c;
+    }
+    .clear-btn:hover { background: #2d3a4c; color: #fecaca; }
+    .table-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 420px;
+      border-radius: 18px;
+      border: 1px solid #1e2a3a;
+      background: #0b1522;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #0f1c2f;
+      color: #b9c7dc;
+      font-weight: 500;
+      padding: 14px 6px;
+      text-align: center;
+      border-bottom: 2px solid #2d4055;
+    }
+    td {
+      padding: 12px 6px;
+      border-bottom: 1px solid #1f2e40;
+      text-align: center;
+      color: #cdd9f0;
+    }
+    tr.warning-row td { background: #2a1f0c; }
+    tr.danger-row td { background: #2c1518; }
+    .map-link {
+      background: #1e3a5f;
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid #3b6e9f;
+      transition: 0.15s;
+    }
+    .map-link:hover {
+      background: #2b5385;
+      border-color: #7ab7ff;
+    }
     .footer {
       text-align: center;
-      margin-top: 20px;
-      font-size: 12px;
-      color: #64748b;
+      margin-top: 30px;
+      color: #4b5b73;
+      font-size: 0.85rem;
+      border-top: 1px solid #1e2a3a;
+      padding-top: 18px;
+    }
+    .live-badge {
+      display: inline-block;
+      background: #0d9488;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      box-shadow: 0 0 8px #2dd4bf;
     }
   </style>
 </head>
-
 <body>
 
-  <h1>🛟 Smart Life Jacket</h1>
+<h1>🛟 SMART LIFE JACKET <span>abnormal log + maps</span></h1>
 
+<div class="grid">
+  <!-- LEFT: LIVE MONITOR CARD -->
   <div class="card">
-    <div class="row">
-      <span class="label">Heart Rate</span>
-      <span class="value" id="bpm">-- BPM</span>
+    <div style="display:flex; gap:8px; align-items: center; margin-bottom:18px;">
+      <span class="live-badge"></span> 
+      <span style="font-weight:300; letter-spacing:0.5px;">REALTIME TELEMETRY</span>
     </div>
 
+    <div class="row"><span class="label"><i>❤️</i> Heart rate</span><span class="value" id="bpm">-- BPM</span></div>
+    <div class="row"><span class="label"><i>🌡️</i> Temperature</span><span class="value" id="temp">-- °C</span></div>
+    <div class="row"><span class="label"><i>⚡</i> Acceleration</span><span class="value" id="acc">-- g</span></div>
+    <div class="row"><span class="label"><i>🏃</i> Motion state</span><span class="value" id="state">--</span></div>
+    <div class="row"><span class="label"><i>🔊</i> Buzzer</span><span class="value" id="buzzer">--</span></div>
+    <div class="row"><span class="label"><i>📍</i> Latitude</span><span class="value" id="lat">--</span></div>
+    <div class="row"><span class="label"><i>🗺️</i> Longitude</span><span class="value" id="lon">--</span></div>
     <div class="row">
-      <span class="label">Temperature</span>
-      <span class="value" id="temp">-- °C</span>
-    </div>
-
-    <div class="row">
-      <span class="label">Acceleration</span>
-      <span class="value" id="acc">-- g</span>
-    </div>
-
-    <div class="row">
-      <span class="label">Motion State</span>
-      <span class="value" id="state">--</span>
-    </div>
-
-    <div class="row">
-      <span class="label">Buzzer</span>
-      <span class="value" id="buzzer">--</span>
-    </div>
-
-    <div class="row">
-      <span class="label">Latitude</span>
-      <span class="value" id="lat">--</span>
-    </div>
-
-    <div class="row">
-      <span class="label">Longitude</span>
-      <span class="value" id="lon">--</span>
+      <span class="label"><i>🗺️</i> Direct map</span>
+      <span class="value" style="background:transparent; padding:0;" id="mapLinkContainer">
+        <a href="#" target="_blank" id="dynamicMapLink" style="background:#1e3a5f; padding:6px 16px; border-radius:40px; color:white; text-decoration:none; display:inline-flex; gap:6px;">🌍 open map</a>
+      </span>
     </div>
   </div>
 
-  <div class="footer">
-    Live data from ESP32 via Firebase Realtime Database
+  <!-- RIGHT: ABNORMAL LOGGER + TABLE WITH MAP LINKS -->
+  <div class="log-section">
+    <div class="section-header">
+      <h2>⚠️ abnormal events log</h2>
+      <button class="clear-btn" id="clearLogBtn">🧹 clear log</button>
+    </div>
+    <div class="table-wrapper">
+      <table id="logTable">
+        <thead>
+          <tr><th>time</th><th>state</th><th>HR</th><th>temp</th><th>acc</th><th>map</th></tr>
+        </thead>
+        <tbody id="logBody">
+          <!-- dynamic rows inserted here -->
+          <tr><td colspan="6" style="text-align:center; color:#5f748e;">-- no abnormal events yet --</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px; color:#7f8fa6; font-size:0.8rem; display: flex; gap: 18px;">
+      <span><span style="background:#2c1518; padding:2px 10px; border-radius:20px;">🔴 DANGER</span> &nbsp; <span style="background:#2a2416; padding:2px 10px; border-radius:20px;">🟡 MOVING</span></span>
+      <span>⏱️ max 50 records</span>
+    </div>
   </div>
+</div>
 
-  <!-- 🔥 FIREBASE SCRIPT -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+<div class="footer">
+  🔥 Firebase realtime • ESP32 • abnormal = (state includes DANGER or MOVING) • click map link for GPS tracking
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCt9PG8MTj-WpTIetpdIoqg67SBnHtTAP8",
-      authDomain: "smart-life-jacket-35f2c.firebaseapp.com",
-      databaseURL: "https://smart-life-jacket-35f2c-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "smart-life-jacket-35f2c",
-      storageBucket: "smart-life-jacket-35f2c.firebasestorage.app",
-      messagingSenderId: "485422580337",
-      appId: "1:485422580337:web:b9e2acb06f987d1bfb91d0"
+<!-- FIREBASE MODULE & LOGIC -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCt9PG8MTj-WpTIetpdIoqg67SBnHtTAP8",
+    authDomain: "smart-life-jacket-35f2c.firebaseapp.com",
+    databaseURL: "https://smart-life-jacket-35f2c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "smart-life-jacket-35f2c",
+    storageBucket: "smart-life-jacket-35f2c.firebasestorage.app",
+    messagingSenderId: "485422580337",
+    appId: "1:485422580337:web:b9e2acb06f987d1bfb91d0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const liveRef = ref(db, "smart_life_jacket/live");
+
+  // ---- LOG STORAGE (in memory) ----
+  let abnormalEvents = [];        // array of objects
+  const MAX_LOG = 50;
+
+  // get tbody & table placeholder
+  const logBody = document.getElementById('logBody');
+
+  // helper: time string (HH:MM:SS)
+  function getTimeString() {
+    const d = new Date();
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+  }
+
+  // render log table from abnormalEvents array
+  function renderLog() {
+    if (abnormalEvents.length === 0) {
+      logBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#5f748e;">-- no abnormal events yet --</td></tr>';
+      return;
+    }
+
+    let html = '';
+    // show most recent first (newest on top)
+    [...abnormalEvents].reverse().forEach(ev => {
+      const rowClass = ev.state === 'DANGER' ? 'danger-row' : (ev.state === 'MOVING' ? 'warning-row' : '');
+      // build google maps link (direct)
+      let mapLink = '#';
+      let linkText = 'no coord';
+      if (ev.lat && ev.lon && ev.lat !== '--' && ev.lon !== '--' && !isNaN(parseFloat(ev.lat))) {
+        mapLink = `https://www.google.com/maps?q=${ev.lat},${ev.lon}`;
+        linkText = '📍 map';
+      } else {
+        mapLink = '#';
+        linkText = '❌ no gps';
+      }
+
+      html += `<tr class="${rowClass}">
+        <td>${ev.time}</td>
+        <td><span style="font-weight:600; ${ev.state==='DANGER'?'color:#ef4444':(ev.state==='MOVING'?'color:#facc15':'')}">${ev.state}</span></td>
+        <td>${ev.bpm}</td>
+        <td>${ev.temp}</td>
+        <td>${ev.acc}</td>
+        <td><a href="${mapLink}" target="_blank" class="map-link">${linkText}</a></td>
+      </tr>`;
+    });
+    logBody.innerHTML = html;
+  }
+
+  // add abnormal event (if state is DANGER or MOVING)
+  function pushAbnormalIfNeeded(data) {
+    const state = data.state || '--';
+    // abnormal condition: DANGER or MOVING
+    if (state !== 'DANGER' && state !== 'MOVING') return;
+
+    const time = getTimeString();
+    const bpm = data.bpm !== undefined ? data.bpm + ' BPM' : '--';
+    const temp = data.temperature !== undefined ? data.temperature + ' °C' : '--';
+    const acc = data.acceleration !== undefined ? data.acceleration + ' g' : '--';
+    const lat = data.latitude ?? '--';
+    const lon = data.longitude ?? '--';
+
+    const eventRecord = {
+      time,
+      state,
+      bpm,
+      temp,
+      acc,
+      lat,
+      lon
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    abnormalEvents.push(eventRecord);
+    if (abnormalEvents.length > MAX_LOG) abnormalEvents.shift(); // keep max 50
 
-    const liveRef = ref(db, "smart_life_jacket/live");
+    renderLog();
+  }
 
-    onValue(liveRef, (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
+  // clear log
+  document.getElementById('clearLogBtn').addEventListener('click', () => {
+    abnormalEvents = [];
+    renderLog();
+  });
 
-      document.getElementById("bpm").innerText = data.bpm + " BPM";
-      document.getElementById("temp").innerText = data.temperature + " °C";
-      document.getElementById("acc").innerText = data.acceleration + " g";
-      document.getElementById("state").innerText = data.state;
-      document.getElementById("buzzer").innerText = data.buzzer;
-      document.getElementById("lat").innerText = data.latitude ?? "--";
-      document.getElementById("lon").innerText = data.longitude ?? "--";
+  // ----- LIVE DATA UPDATE -----
+  onValue(liveRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
 
-      // Color logic
-      const stateEl = document.getElementById("state");
-      stateEl.className = "value";
+    // update live fields
+    document.getElementById("bpm").innerText = data.bpm !== undefined ? data.bpm + " BPM" : "-- BPM";
+    document.getElementById("temp").innerText = data.temperature !== undefined ? data.temperature + " °C" : "-- °C";
+    document.getElementById("acc").innerText = data.acceleration !== undefined ? data.acceleration + " g" : "-- g";
+    
+    const stateStr = data.state || '--';
+    document.getElementById("state").innerText = stateStr;
+    document.getElementById("buzzer").innerText = data.buzzer ?? '--';
+    
+    const latVal = data.latitude ?? '--';
+    const lonVal = data.longitude ?? '--';
+    document.getElementById("lat").innerText = latVal;
+    document.getElementById("lon").innerText = lonVal;
 
-      if (data.state === "DANGER") stateEl.classList.add("danger");
-      else if (data.state === "MOVING") stateEl.classList.add("warning");
-    });
-  </script>
+    // dynamic map link in live card
+    const mapLinkEl = document.getElementById('dynamicMapLink');
+    if (latVal !== '--' && lonVal !== '--' && !isNaN(parseFloat(latVal))) {
+      mapLinkEl.href = `https://www.google.com/maps?q=${latVal},${lonVal}`;
+      mapLinkEl.innerText = '🌍 open live map';
+    } else {
+      mapLinkEl.href = '#';
+      mapLinkEl.innerText = '⛔ no gps';
+    }
+
+    // coloring for state
+    const stateEl = document.getElementById("state");
+    stateEl.className = "value";
+    if (stateStr === "DANGER") stateEl.classList.add("danger");
+    else if (stateStr === "MOVING") stateEl.classList.add("warning");
+    else stateEl.classList.add("normal");
+
+    // --- ABNORMAL LOGGER: store if DANGER or MOVING ---
+    pushAbnormalIfNeeded(data);
+  });
+
+  // initial render of empty log
+  renderLog();
+
+  // optional: prefill with demo abnormal event after 2 sec (just to show example if no real data yet)
+  setTimeout(() => {
+    if (abnormalEvents.length === 0) {
+      // create one dummy abnormal for demonstration (can be removed)
+      abnormalEvents.push({
+        time: getTimeString(),
+        state: 'MOVING',
+        bpm: '92 BPM',
+        temp: '36.2 °C',
+        acc: '1.8 g',
+        lat: '13.7563',
+        lon: '100.5018'
+      });
+      abnormalEvents.push({
+        time: getTimeString(),
+        state: 'DANGER',
+        bpm: '115 BPM',
+        temp: '35.1 °C',
+        acc: '3.2 g',
+        lat: '13.7300',
+        lon: '100.5200'
+      });
+      renderLog();
+    }
+  }, 1500);
+</script>
+<!-- small style adjust for map link container -->
+<style>
+  #dynamicMapLink { transition: 0.2s; }
+  #dynamicMapLink:hover { background: #2b5385; border-color:#7ab7ff; }
+  td a.map-link { font-weight: 500; }
+  .table-wrapper::-webkit-scrollbar { width: 8px; background: #0b1522; }
+  .table-wrapper::-webkit-scrollbar-thumb { background: #2e4360; border-radius: 10px; }
+</style>
 
 </body>
 </html>
