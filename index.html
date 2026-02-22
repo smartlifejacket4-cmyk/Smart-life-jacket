@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Life Jacket – Live Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px auto;
+      max-width: 400px;
+      box-shadow: 0 0 15px rgba(56,189,248,0.2);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      color: #94a3b8;
+    }
+
+    .value {
+      font-weight: bold;
+      color: #22c55e;
+    }
+
+    .danger {
+      color: #ef4444;
+    }
+
+    .warning {
+      color: #facc15;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🛟 Smart Life Jacket</h1>
+
+  <div class="card">
+    <div class="row">
+      <span class="label">Heart Rate</span>
+      <span class="value" id="bpm">-- BPM</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Temperature</span>
+      <span class="value" id="temp">-- °C</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Acceleration</span>
+      <span class="value" id="acc">-- g</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Motion State</span>
+      <span class="value" id="state">--</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Buzzer</span>
+      <span class="value" id="buzzer">--</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Latitude</span>
+      <span class="value" id="lat">--</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Longitude</span>
+      <span class="value" id="lon">--</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    Live data from ESP32 via Firebase Realtime Database
+  </div>
+
+  <!-- 🔥 FIREBASE SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCt9PG8MTj-WpTIetpdIoqg67SBnHtTAP8",
+      authDomain: "smart-life-jacket-35f2c.firebaseapp.com",
+      databaseURL: "https://smart-life-jacket-35f2c-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "smart-life-jacket-35f2c",
+      storageBucket: "smart-life-jacket-35f2c.firebasestorage.app",
+      messagingSenderId: "485422580337",
+      appId: "1:485422580337:web:b9e2acb06f987d1bfb91d0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const liveRef = ref(db, "smart_life_jacket/live");
+
+    onValue(liveRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      document.getElementById("bpm").innerText = data.bpm + " BPM";
+      document.getElementById("temp").innerText = data.temperature + " °C";
+      document.getElementById("acc").innerText = data.acceleration + " g";
+      document.getElementById("state").innerText = data.state;
+      document.getElementById("buzzer").innerText = data.buzzer;
+      document.getElementById("lat").innerText = data.latitude ?? "--";
+      document.getElementById("lon").innerText = data.longitude ?? "--";
+
+      // Color logic
+      const stateEl = document.getElementById("state");
+      stateEl.className = "value";
+
+      if (data.state === "DANGER") stateEl.classList.add("danger");
+      else if (data.state === "MOVING") stateEl.classList.add("warning");
+    });
+  </script>
+
+</body>
+</html>
