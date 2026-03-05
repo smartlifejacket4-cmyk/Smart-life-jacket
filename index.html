@@ -1,147 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SMART LIFE JACKET MONITOR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+background:#0b1120;
+color:#e2e8f0;
+font-family:Segoe UI;
+margin:0;
+padding:20px;
+}
+
+h1{
+text-align:center;
+color:#38bdf8;
+margin-bottom:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+max-width:1300px;
+margin:auto;
+}
+
+.card{
+background:#020617;
+border-radius:20px;
+padding:20px;
+box-shadow:0 0 10px #000;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+padding:10px;
+border-bottom:1px solid #1e2a3a;
+}
+
+.value{
+font-weight:bold;
+padding:4px 10px;
+border-radius:20px;
+background:#0f1a24;
+}
+
+.normal{color:#22c55e;}
+.warning{color:#facc15;}
+.danger{color:#ef4444;}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+text-align:center;
+border-bottom:1px solid #1e2a3a;
+}
+
+.map-link{
+background:#1e3a5f;
+padding:5px 12px;
+border-radius:20px;
+color:white;
+text-decoration:none;
+}
+
+button{
+background:#1e293b;
+color:white;
+border:none;
+padding:6px 14px;
+border-radius:20px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🛟 SMART LIFE JACKET LIVE MONITOR</h1>
+
+<div class="grid">
+
+<!-- LIVE DATA PANEL -->
+
+<div class="card">
+
+<div class="row">
+<span>❤️ Heart Rate</span>
+<span class="value" id="bpm">--</span>
+</div>
+
+<div class="row">
+<span>🌡 Temperature</span>
+<span class="value" id="temp">--</span>
+</div>
+
+<div class="row">
+<span>⚡ Acceleration</span>
+<span class="value" id="acc">--</span>
+</div>
+
+<div class="row">
+<span>📡 ACC X</span>
+<span class="value" id="ax">--</span>
+</div>
+
+<div class="row">
+<span>📡 ACC Y</span>
+<span class="value" id="ay">--</span>
+</div>
+
+<div class="row">
+<span>📡 ACC Z</span>
+<span class="value" id="az">--</span>
+</div>
+
+<div class="row">
+<span>🌀 GYRO X</span>
+<span class="value" id="gx">--</span>
+</div>
+
+<div class="row">
+<span>🌀 GYRO Y</span>
+<span class="value" id="gy">--</span>
+</div>
+
+<div class="row">
+<span>🌀 GYRO Z</span>
+<span class="value" id="gz">--</span>
+</div>
+
+<div class="row">
+<span>🏃 Motion State</span>
+<span class="value" id="state">--</span>
+</div>
+
+<div class="row">
+<span>🔊 Buzzer</span>
+<span class="value" id="buzzer">--</span>
+</div>
+
+<div class="row">
+<span>🆘 SOS</span>
+<span class="value" id="sos">--</span>
+</div>
+
+<div class="row">
+<span>📍 Latitude</span>
+<span class="value" id="lat">--</span>
+</div>
+
+<div class="row">
+<span>📍 Longitude</span>
+<span class="value" id="lon">--</span>
+</div>
+
+<div class="row">
+<span>🗺 Map</span>
+<a id="mapLink" class="map-link" target="_blank">OPEN</a>
+</div>
+
+</div>
+
+
+<!-- LOGGER -->
+
+<div class="card">
+
+<div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+<h3>⚠ Abnormal Event Log</h3>
+<button id="clearBtn">Clear</button>
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Time</th>
+<th>State</th>
+<th>BPM</th>
+<th>Temp</th>
+<th>ACC</th>
+<th>Map</th>
+</tr>
+</thead>
+
+<tbody id="logBody">
+
+<tr>
+<td colspan="6">No events</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- FIREBASE -->
+
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyCt9PG8MTj-WpTIetpdIoqg67SBnHtTAP8",
-authDomain: "smart-life-jacket-35f2c.firebaseapp.com",
-databaseURL: "https://smart-life-jacket-35f2c-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId: "smart-life-jacket-35f2c",
-storageBucket: "smart-life-jacket-35f2c.firebasestorage.app",
-messagingSenderId: "485422580337",
-appId: "1:485422580337:web:b9e2acb06f987d1bfb91d0"
+apiKey:"AIzaSyCt9PG8MTj-WpTIetpdIoqg67SBnHtTAP8",
+authDomain:"smart-life-jacket-35f2c.firebaseapp.com",
+databaseURL:"https://smart-life-jacket-35f2c-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"smart-life-jacket-35f2c",
+storageBucket:"smart-life-jacket-35f2c.firebasestorage.app",
+messagingSenderId:"485422580337",
+appId:"1:485422580337:web:b9e2acb06f987d1bfb91d0"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const liveRef = ref(db,"smart_life_jacket/live");
 
-let abnormalEvents=[];
+let logs=[];
 const MAX_LOG=50;
 
-const logBody=document.getElementById("logBody");
-
-function getTimeString(){
+function time(){
 const d=new Date();
-return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+return d.toLocaleTimeString();
 }
 
-function renderLog(){
+function render(){
 
-if(abnormalEvents.length===0){
-logBody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#5f748e;">-- no abnormal events yet --</td></tr>';
+const body=document.getElementById("logBody");
+
+if(logs.length==0){
+body.innerHTML="<tr><td colspan='6'>No events</td></tr>";
 return;
 }
 
 let html="";
 
-[...abnormalEvents].reverse().forEach(ev=>{
+[...logs].reverse().forEach(e=>{
 
-const rowClass=ev.state==="DANGER"?"danger-row":(ev.state==="MOVING"?"warning-row":"");
+let map="#";
 
-let mapLink="#";
-let linkText="no coord";
-
-if(ev.lat && ev.lon){
-mapLink=`https://www.google.com/maps?q=${ev.lat},${ev.lon}`;
-linkText="📍 map";
-}else{
-linkText="❌ no gps";
-}
+if(e.lat && e.lon)
+map=`https://www.google.com/maps?q=${e.lat},${e.lon}`;
 
 html+=`
-<tr class="${rowClass}">
-<td>${ev.time}</td>
-<td>${ev.state}</td>
-<td>${ev.bpm}</td>
-<td>${ev.temp}</td>
-<td>${ev.acc}</td>
-<td><a href="${mapLink}" target="_blank" class="map-link">${linkText}</a></td>
+<tr>
+<td>${e.time}</td>
+<td>${e.state}</td>
+<td>${e.bpm}</td>
+<td>${e.temp}</td>
+<td>${e.acc}</td>
+<td><a class="map-link" target="_blank" href="${map}">MAP</a></td>
 </tr>
 `;
 
 });
 
-logBody.innerHTML=html;
+body.innerHTML=html;
 
 }
 
-function pushAbnormalIfNeeded(data){
+function addEvent(data){
 
-const state=data.state||"--";
+if(data.state!="DANGER" && data.state!="MOVING") return;
 
-if(state!=="DANGER" && state!=="MOVING") return;
+logs.push({
+time:time(),
+state:data.state,
+bpm:data.bpm,
+temp:data.temperature,
+acc:data.acc_total,
+lat:data.lat,
+lon:data.lon
+});
 
-const record={
-time:getTimeString(),
-state:state,
-bpm:data.bpm+" BPM",
-temp:data.temperature+" °C",
-acc:data.acc_total+" g",
-lat:data.lat??"--",
-lon:data.lon??"--"
+if(logs.length>MAX_LOG)
+logs.shift();
+
+render();
+
+}
+
+document.getElementById("clearBtn").onclick=()=>{
+logs=[];
+render();
 };
 
-abnormalEvents.push(record);
+onValue(liveRef,(snap)=>{
 
-if(abnormalEvents.length>MAX_LOG) abnormalEvents.shift();
+const d=snap.val();
+if(!d) return;
 
-renderLog();
+document.getElementById("bpm").innerText=d.bpm;
+document.getElementById("temp").innerText=d.temperature;
+document.getElementById("acc").innerText=d.acc_total;
 
-}
+document.getElementById("ax").innerText=d.acc_x;
+document.getElementById("ay").innerText=d.acc_y;
+document.getElementById("az").innerText=d.acc_z;
 
-document.getElementById("clearLogBtn").addEventListener("click",()=>{
-abnormalEvents=[];
-renderLog();
-});
+document.getElementById("gx").innerText=d.gyro_x;
+document.getElementById("gy").innerText=d.gyro_y;
+document.getElementById("gz").innerText=d.gyro_z;
 
-onValue(liveRef,(snapshot)=>{
+document.getElementById("state").innerText=d.state;
+document.getElementById("buzzer").innerText=d.buzzer;
+document.getElementById("sos").innerText=d.sos;
 
-const data=snapshot.val();
-if(!data) return;
+document.getElementById("lat").innerText=d.lat;
+document.getElementById("lon").innerText=d.lon;
 
-/* LIVE VALUES */
+const map=document.getElementById("mapLink");
 
-document.getElementById("bpm").innerText=data.bpm+" BPM";
-document.getElementById("temp").innerText=data.temperature+" °C";
-document.getElementById("acc").innerText=data.acc_total+" g";
+if(d.lat && d.lon)
+map.href=`https://www.google.com/maps?q=${d.lat},${d.lon}`;
 
-document.getElementById("state").innerText=data.state;
-
-document.getElementById("buzzer").innerText=data.buzzer;
-
-document.getElementById("lat").innerText=data.lat??"--";
-document.getElementById("lon").innerText=data.lon??"--";
-
-/* MAP LINK */
-
-const map=document.getElementById("dynamicMapLink");
-
-if(data.lat && data.lon){
-map.href=`https://www.google.com/maps?q=${data.lat},${data.lon}`;
-map.innerText="🌍 open live map";
-}else{
-map.href="#";
-map.innerText="⛔ no gps";
-}
-
-/* STATE COLOR */
-
-const stateEl=document.getElementById("state");
-stateEl.className="value";
-
-if(data.state==="DANGER")
-stateEl.classList.add("danger");
-else if(data.state==="MOVING")
-stateEl.classList.add("warning");
-else
-stateEl.classList.add("normal");
-
-/* LOGGER */
-
-pushAbnormalIfNeeded(data);
+addEvent(d);
 
 });
 
-renderLog();
+render();
+
 </script>
+
+</body>
+</html>
