@@ -7,53 +7,58 @@
   <style>
     * {
       box-sizing: border-box;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', monospace;
     }
     
     body {
-      background: #0b1120;
-      color: #e2e8f0;
+      background: #0a0f1e;
+      color: #00ff9d;
       margin: 0;
       padding: 20px;
     }
     
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
     h1 {
+      color: #00b8ff;
       text-align: center;
-      font-weight: 400;
-      font-size: 2rem;
-      margin: 0 0 10px 0;
-      color: #38bdf8;
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(0,184,255,0.5);
     }
     
-    .connection-status {
-      text-align: center;
-      margin-bottom: 20px;
-      padding: 10px;
+    .status-bar {
+      background: #111a28;
+      border: 1px solid #00b8ff;
       border-radius: 8px;
-      background: #1e293b;
-      display: inline-block;
-      margin-left: auto;
-      margin-right: auto;
-      width: fit-content;
-      padding: 8px 20px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: monospace;
     }
     
-    .connected {
-      color: #22c55e;
-    }
-    
-    .disconnected {
-      color: #ef4444;
-    }
-    
-    .live-badge {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      background: #22c55e;
+    .connection-led {
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
-      margin-right: 8px;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    
+    .led-green {
+      background: #00ff00;
+      box-shadow: 0 0 15px #00ff00;
       animation: pulse 2s infinite;
+    }
+    
+    .led-red {
+      background: #ff0000;
+      box-shadow: 0 0 15px #ff0000;
     }
     
     @keyframes pulse {
@@ -62,37 +67,48 @@
       100% { opacity: 1; }
     }
     
-    .grid {
+    .live-indicator {
+      display: flex;
+      align-items: center;
+    }
+    
+    .timestamp {
+      color: #888;
+      font-size: 0.9em;
+    }
+    
+    .data-panel {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
+      margin-bottom: 20px;
     }
     
     .card {
-      background: #020617;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.8), 0 0 0 1px #1e293b;
+      background: #0f1624;
+      border: 1px solid #1e2a3a;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     
     .card-title {
+      color: #00b8ff;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #1e2a3a;
+      padding-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 20px;
-      color: #94a3b8;
-      font-size: 1.1rem;
-      border-bottom: 1px solid #1e293b;
-      padding-bottom: 12px;
     }
     
     .data-row {
       display: flex;
       justify-content: space-between;
-      padding: 12px 8px;
-      border-bottom: 1px solid #1e2a3a;
+      padding: 8px 0;
+      border-bottom: 1px dashed #1e2a3a;
+      font-family: 'Courier New', monospace;
     }
     
     .data-row:last-child {
@@ -100,233 +116,247 @@
     }
     
     .label {
-      color: #94a3b8;
-      font-weight: 400;
+      color: #8b9bb5;
     }
     
     .value {
-      font-weight: 600;
-      color: #38bdf8;
-      background: #0f1a24;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-    
-    .state-value {
-      font-size: 1.3rem;
-      padding: 8px 16px;
-      border-radius: 30px;
-    }
-    
-    .state-NORMAL {
-      background: #0a2e1a;
-      color: #22c55e;
-    }
-    
-    .state-MOVING {
-      background: #2a2416;
-      color: #facc15;
-    }
-    
-    .state-DANGER {
-      background: #2c1518;
-      color: #ef4444;
-    }
-    
-    .state-FREE_FALL {
-      background: #2c1518;
-      color: #f97316;
-    }
-    
-    .sos-active {
-      background: #991b1b;
-      color: white;
-      padding: 15px;
-      border-radius: 12px;
-      text-align: center;
+      color: #00ff9d;
       font-weight: bold;
-      font-size: 1.3rem;
+      background: #1a2332;
+      padding: 2px 10px;
+      border-radius: 4px;
+    }
+    
+    .value.warning {
+      color: #ffaa00;
+    }
+    
+    .value.danger {
+      color: #ff4444;
+    }
+    
+    .value.sos {
+      color: #ff0000;
       animation: blink 1s infinite;
     }
     
-    .sos-inactive {
-      background: #1e293b;
-      color: #94a3b8;
-      padding: 15px;
-      border-radius: 12px;
-      text-align: center;
-    }
-    
     @keyframes blink {
-      0% { opacity: 1; }
-      50% { opacity: 0.7; }
-      100% { opacity: 1; }
-    }
-    
-    .map-link {
-      display: inline-block;
-      background: #1e3a5f;
-      color: white;
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      margin-top: 10px;
+      0% { opacity: 1; background: #330000; }
+      50% { opacity: 0.7; background: #660000; }
+      100% { opacity: 1; background: #330000; }
     }
     
     .raw-data {
-      background: #0b1522;
-      padding: 15px;
-      border-radius: 12px;
-      font-family: monospace;
-      font-size: 0.8rem;
+      background: #0a0f1a;
+      border: 1px solid #1e2a3a;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
       overflow-x: auto;
       white-space: pre-wrap;
-      color: #a5b4cb;
+      color: #00ff9d;
+      margin-top: 20px;
+    }
+    
+    .raw-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: #00b8ff;
+    }
+    
+    .refresh-btn {
+      background: #1e2a3a;
+      color: #00b8ff;
+      border: 1px solid #00b8ff;
+      padding: 5px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    
+    .refresh-btn:hover {
+      background: #2a3a4a;
+    }
+    
+    .refresh-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .stat {
+      background: #0f1624;
       border: 1px solid #1e2a3a;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .stat-label {
+      color: #8b9bb5;
+      font-size: 0.8em;
+    }
+    
+    .stat-value {
+      color: #00ff9d;
+      font-size: 1.5em;
+      font-weight: bold;
     }
     
     .footer {
       text-align: center;
+      color: #4a5a6a;
       margin-top: 30px;
-      color: #4b5b73;
-      font-size: 0.85rem;
-      padding-top: 20px;
+      font-size: 0.8em;
       border-top: 1px solid #1e2a3a;
-    }
-    
-    .refresh-btn {
-      background: #1e293b;
-      color: white;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 30px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    
-    .refresh-btn:hover {
-      background: #2d3a4c;
+      padding-top: 20px;
     }
   </style>
 </head>
 <body>
-
-  <h1>🛟 SMART LIFE JACKET - LIVE DATA</h1>
-  
-  <div style="text-align: center; margin-bottom: 30px;">
-    <div class="connection-status" id="connectionStatus">
-      <span class="live-badge"></span>
-      <span id="statusText">Connecting to Firebase...</span>
-    </div>
-  </div>
-
-  <div class="grid">
-    <!-- Vital Signs Card -->
-    <div class="card">
-      <div class="card-title">
-        <span>❤️ VITAL SIGNS</span>
+  <div class="container">
+    <h1>🛟 SMART LIFE JACKET · LIVE FIREBASE DATA</h1>
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="live-indicator">
+        <span class="connection-led led-green" id="connectionLed"></span>
+        <span id="connectionText">CONNECTED TO FIREBASE</span>
       </div>
-      <div class="data-row">
-        <span class="label">Heart Rate (BPM):</span>
-        <span class="value" id="bpm">--</span>
-      </div>
-      <div class="data-row">
-        <span class="label">Temperature (°C):</span>
-        <span class="value" id="temperature">--</span>
-      </div>
-      <div class="data-row">
-        <span class="label">Buzzer Status:</span>
-        <span class="value" id="buzzer">--</span>
-      </div>
+      <div class="timestamp" id="lastUpdate">Waiting for data...</div>
     </div>
 
-    <!-- Motion Status Card -->
-    <div class="card">
-      <div class="card-title">
-        <span>⚡ MOTION DATA</span>
+    <!-- Quick Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Data Stream</div>
+        <div class="stat-value" id="dataRate">--</div>
       </div>
-      <div class="data-row">
-        <span class="label">Motion State:</span>
-        <span class="value state-value" id="state">--</span>
+      <div class="stat">
+        <div class="stat-label">State</div>
+        <div class="stat-value" id="currentState">--</div>
       </div>
-      <div class="data-row">
-        <span class="label">Total Acceleration (g):</span>
-        <span class="value" id="acc_total">--</span>
+      <div class="stat">
+        <div class="stat-label">GPS</div>
+        <div class="stat-value" id="gpsStatus">--</div>
       </div>
-      <div class="data-row">
-        <span class="label">Accel X (g):</span>
-        <span class="value" id="acc_x">--</span>
-      </div>
-      <div class="data-row">
-        <span class="label">Accel Y (g):</span>
-        <span class="value" id="acc_y">--</span>
-      </div>
-      <div class="data-row">
-        <span class="label">Accel Z (g):</span>
-        <span class="value" id="acc_z">--</span>
+      <div class="stat">
+        <div class="stat-label">SOS</div>
+        <div class="stat-value" id="sosStatus">--</div>
       </div>
     </div>
 
-    <!-- Gyroscope Card -->
-    <div class="card">
-      <div class="card-title">
-        <span>🔄 GYROSCOPE (°/s)</span>
+    <!-- Live Data Panels -->
+    <div class="data-panel">
+      <!-- Vital Signs -->
+      <div class="card">
+        <div class="card-title">❤️ VITAL SIGNS</div>
+        <div class="data-row">
+          <span class="label">Heart Rate:</span>
+          <span class="value" id="live_bpm">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Temperature:</span>
+          <span class="value" id="live_temp">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Buzzer:</span>
+          <span class="value" id="live_buzzer">---</span>
+        </div>
       </div>
-      <div class="data-row">
-        <span class="label">Gyro X:</span>
-        <span class="value" id="gyro_x">--</span>
+
+      <!-- Motion Data -->
+      <div class="card">
+        <div class="card-title">⚡ MOTION</div>
+        <div class="data-row">
+          <span class="label">State:</span>
+          <span class="value" id="live_state">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Accel Total:</span>
+          <span class="value" id="live_acc_total">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Accel X/Y/Z:</span>
+          <span class="value" id="live_acc_xyz">---</span>
+        </div>
       </div>
-      <div class="data-row">
-        <span class="label">Gyro Y:</span>
-        <span class="value" id="gyro_y">--</span>
+
+      <!-- Gyroscope -->
+      <div class="card">
+        <div class="card-title">🔄 GYROSCOPE</div>
+        <div class="data-row">
+          <span class="label">Gyro X:</span>
+          <span class="value" id="live_gyro_x">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Gyro Y:</span>
+          <span class="value" id="live_gyro_y">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Gyro Z:</span>
+          <span class="value" id="live_gyro_z">---</span>
+        </div>
       </div>
-      <div class="data-row">
-        <span class="label">Gyro Z:</span>
-        <span class="value" id="gyro_z">--</span>
+
+      <!-- GPS & SOS -->
+      <div class="card">
+        <div class="card-title">📍 GPS & SOS</div>
+        <div class="data-row">
+          <span class="label">SOS:</span>
+          <span class="value" id="live_sos">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Latitude:</span>
+          <span class="value" id="live_lat">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Longitude:</span>
+          <span class="value" id="live_lon">---</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Map Link:</span>
+          <span class="value" id="live_map">
+            <a href="#" target="_blank" id="mapLink" style="color: #00b8ff; text-decoration: none;">🌍 Open</a>
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- SOS & Location Card -->
-    <div class="card">
-      <div class="card-title">
-        <span>🆘 SOS & LOCATION</span>
+    <!-- RAW Firebase Data -->
+    <div class="raw-data">
+      <div class="raw-header">
+        <span>📦 RAW JSON FROM FIREBASE</span>
+        <button class="refresh-btn" id="refreshBtn">⟳ REFRESH</button>
       </div>
-      <div class="data-row">
-        <span class="label">SOS Status:</span>
-        <span class="value" id="sos">--</span>
-      </div>
-      <div id="sosDisplay"></div>
-      <div class="data-row">
-        <span class="label">Latitude:</span>
-        <span class="value" id="lat">--</span>
-      </div>
-      <div class="data-row">
-        <span class="label">Longitude:</span>
-        <span class="value" id="lon">--</span>
-      </div>
-      <div style="text-align: center; margin-top: 15px;" id="mapContainer">
-        <a href="#" target="_blank" id="mapLink" class="map-link">🌍 Open in Google Maps</a>
+      <div id="rawJson" style="min-height: 200px;">
+        {
+          "waiting": "for data from ESP32..."
+        }
       </div>
     </div>
-  </div>
 
-  <!-- Raw Firebase Data -->
-  <div class="card" style="margin-top: 20px; max-width: 1400px; margin-left: auto; margin-right: auto;">
-    <div class="card-title">
-      <span>📦 RAW FIREBASE DATA</span>
-      <button class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
+    <!-- Data Log -->
+    <div class="raw-data" style="margin-top: 10px; max-height: 200px; overflow-y: auto;">
+      <div class="raw-header">
+        <span>📝 LIVE DATA STREAM</span>
+      </div>
+      <div id="dataLog" style="font-size: 12px;">
+        ---
+      </div>
     </div>
-    <div class="raw-data" id="rawData">
-      Waiting for data...
-    </div>
-    <div style="margin-top: 10px; color: #64748b; font-size: 0.8rem;">
-      Last updated: <span id="timestamp">--</span>
-    </div>
-  </div>
 
-  <div class="footer">
-    Connected to: smart-life-jacket-35f2c-default-rtdb.asia-southeast1.firebasedatabase.app/smart_life_jacket/live
+    <div class="footer">
+      🔥 Firebase: smart-life-jacket-35f2c-default-rtdb /smart_life_jacket/live
+    </div>
   </div>
 
   <script type="module">
@@ -343,144 +373,128 @@
       appId: "1:485422580337:web:b9e2acb06f987d1bfb91d0"
     };
 
-    // Initialize Firebase
+    // Initialize
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const liveRef = ref(db, "smart_life_jacket/live");
 
-    // Update connection status
-    function updateConnectionStatus(connected) {
-      const statusEl = document.getElementById('statusText');
-      const connectionDiv = document.getElementById('connectionStatus');
-      
-      if (connected) {
-        statusEl.innerHTML = '<span class="connected">✅ Connected to Firebase</span>';
-        connectionDiv.style.background = '#0a2e1a';
-      } else {
-        statusEl.innerHTML = '<span class="disconnected">❌ Disconnected</span>';
-        connectionDiv.style.background = '#2c1518';
-      }
-    }
+    // Data stream log
+    let dataLog = [];
+    let lastData = null;
+    let updateCount = 0;
 
-    // Format the raw data for display
-    function formatRawData(data) {
-      if (!data) return 'No data available';
-      
-      try {
-        return JSON.stringify(data, null, 2);
-      } catch (e) {
-        return 'Error formatting data';
-      }
-    }
-
-    // Update all UI elements with live data
-    function updateUI(data) {
+    function updateLiveData(data) {
       if (!data) return;
 
       // Update timestamp
-      document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
+      const now = new Date();
+      document.getElementById('lastUpdate').innerHTML = `Last update: ${now.toLocaleTimeString()}.${now.getMilliseconds()}`;
+      
+      // Update data rate
+      updateCount++;
+      document.getElementById('dataRate').innerHTML = `${updateCount} updates`;
 
-      // Update vital signs
-      document.getElementById('bpm').innerText = data.bpm ?? '--';
-      document.getElementById('temperature').innerText = data.temperature?.toFixed(1) ?? '--';
-      document.getElementById('buzzer').innerText = data.buzzer ?? '--';
-
-      // Update motion data
-      document.getElementById('acc_total').innerText = data.acc_total?.toFixed(2) ?? '--';
-      document.getElementById('acc_x').innerText = data.acc_x?.toFixed(2) ?? '--';
-      document.getElementById('acc_y').innerText = data.acc_y?.toFixed(2) ?? '--';
-      document.getElementById('acc_z').innerText = data.acc_z?.toFixed(2) ?? '--';
-
-      // Update gyroscope
-      document.getElementById('gyro_x').innerText = data.gyro_x?.toFixed(1) ?? '--';
-      document.getElementById('gyro_y').innerText = data.gyro_y?.toFixed(1) ?? '--';
-      document.getElementById('gyro_z').innerText = data.gyro_z?.toFixed(1) ?? '--';
-
-      // Update state with styling
-      const stateEl = document.getElementById('state');
+      // Update all live fields
+      document.getElementById('live_bpm').innerHTML = data.bpm ?? '--';
+      document.getElementById('live_temp').innerHTML = data.temperature ? data.temperature.toFixed(2) + '°C' : '--°C';
+      document.getElementById('live_buzzer').innerHTML = data.buzzer ?? '--';
+      
+      // State with color
+      const stateEl = document.getElementById('live_state');
       const state = data.state || '--';
-      stateEl.innerText = state;
-      stateEl.className = 'value state-value';
+      stateEl.innerHTML = state;
+      stateEl.className = 'value';
+      if (state === 'DANGER') stateEl.classList.add('danger');
+      else if (state === 'MOVING') stateEl.classList.add('warning');
+      else if (state === 'FREE FALL') stateEl.classList.add('danger');
       
-      // Add state-specific class
-      if (state === 'NORMAL') stateEl.classList.add('state-NORMAL');
-      else if (state === 'MOVING') stateEl.classList.add('state-MOVING');
-      else if (state === 'DANGER') stateEl.classList.add('state-DANGER');
-      else if (state === 'FREE FALL') {
-        stateEl.classList.add('state-FREE_FALL');
-        stateEl.innerText = 'FREE FALL';
-      }
+      document.getElementById('currentState').innerHTML = state;
 
-      // Update SOS
+      // Acceleration
+      document.getElementById('live_acc_total').innerHTML = data.acc_total ? data.acc_total.toFixed(3) + ' g' : '-- g';
+      
+      const accX = data.acc_x ? data.acc_x.toFixed(2) : '--';
+      const accY = data.acc_y ? data.acc_y.toFixed(2) : '--';
+      const accZ = data.acc_z ? data.acc_z.toFixed(2) : '--';
+      document.getElementById('live_acc_xyz').innerHTML = `${accX}/${accY}/${accZ}`;
+
+      // Gyroscope
+      document.getElementById('live_gyro_x').innerHTML = data.gyro_x ? data.gyro_x.toFixed(1) + '°/s' : '--';
+      document.getElementById('live_gyro_y').innerHTML = data.gyro_y ? data.gyro_y.toFixed(1) + '°/s' : '--';
+      document.getElementById('live_gyro_z').innerHTML = data.gyro_z ? data.gyro_z.toFixed(1) + '°/s' : '--';
+
+      // SOS
+      const sosEl = document.getElementById('live_sos');
       const sos = data.sos || 'OFF';
-      document.getElementById('sos').innerText = sos;
-      
-      const sosDisplay = document.getElementById('sosDisplay');
+      sosEl.innerHTML = sos;
+      sosEl.className = 'value';
       if (sos === 'ON') {
-        sosDisplay.innerHTML = '<div class="sos-active">🚨 SOS ACTIVE 🚨</div>';
+        sosEl.classList.add('sos');
+        document.getElementById('sosStatus').innerHTML = '🔴 ACTIVE';
       } else {
-        sosDisplay.innerHTML = '<div class="sos-inactive">SOS INACTIVE</div>';
+        document.getElementById('sosStatus').innerHTML = '⚪ INACTIVE';
       }
 
-      // Update GPS
+      // GPS
       const lat = data.lat ?? '--';
       const lon = data.lon ?? '--';
-      document.getElementById('lat').innerText = typeof lat === 'number' ? lat.toFixed(6) : lat;
-      document.getElementById('lon').innerText = typeof lon === 'number' ? lon.toFixed(6) : lon;
-
-      // Update map link
-      const mapLink = document.getElementById('mapLink');
+      document.getElementById('live_lat').innerHTML = typeof lat === 'number' ? lat.toFixed(6) : lat;
+      document.getElementById('live_lon').innerHTML = typeof lon === 'number' ? lon.toFixed(6) : lon;
+      
+      // GPS Status
       if (lat !== '--' && lon !== '--') {
-        mapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
-        mapLink.style.display = 'inline-block';
+        document.getElementById('gpsStatus').innerHTML = '🟢 FIX';
+        document.getElementById('mapLink').href = `https://www.google.com/maps?q=${lat},${lon}`;
       } else {
-        mapLink.href = '#';
-        mapLink.style.display = 'none';
+        document.getElementById('gpsStatus').innerHTML = '🔴 NO FIX';
       }
 
-      // Update raw data display
-      document.getElementById('rawData').innerText = formatRawData(data);
+      // RAW JSON display
+      document.getElementById('rawJson').innerHTML = JSON.stringify(data, null, 2);
+
+      // Add to data log
+      dataLog.unshift(`[${now.toLocaleTimeString()}.${now.getMilliseconds()}] ${JSON.stringify(data)}`);
+      if (dataLog.length > 10) dataLog.pop();
+      document.getElementById('dataLog').innerHTML = dataLog.join('<br>');
+
+      lastData = data;
     }
 
-    // Listen for live data
+    // Live listener
     onValue(liveRef, (snapshot) => {
       const data = snapshot.val();
-      updateConnectionStatus(true);
-      
       if (data) {
-        console.log('Live data received:', data);
-        updateUI(data);
-      } else {
-        document.getElementById('rawData').innerText = 'No data in Firebase path';
+        updateLiveData(data);
+        document.getElementById('connectionLed').className = 'connection-led led-green';
+        document.getElementById('connectionText').innerHTML = 'CONNECTED TO FIREBASE';
       }
     }, (error) => {
       console.error('Firebase error:', error);
-      updateConnectionStatus(false);
-      document.getElementById('rawData').innerText = `Error: ${error.message}`;
+      document.getElementById('connectionLed').className = 'connection-led led-red';
+      document.getElementById('connectionText').innerHTML = 'CONNECTION ERROR';
+      document.getElementById('rawJson').innerHTML = JSON.stringify({ error: error.message }, null, 2);
     });
 
-    // Manual refresh button
+    // Manual refresh
     document.getElementById('refreshBtn').addEventListener('click', async () => {
       try {
         const snapshot = await get(liveRef);
         const data = snapshot.val();
         if (data) {
-          updateUI(data);
-          document.getElementById('rawData').innerText = formatRawData(data);
+          updateLiveData(data);
         }
       } catch (error) {
         console.error('Refresh error:', error);
-        document.getElementById('rawData').innerText = `Refresh error: ${error.message}`;
       }
     });
 
-    // Check connection status periodically
+    // Check connection status
     setInterval(() => {
-      const connected = navigator.onLine;
-      if (!connected) {
-        updateConnectionStatus(false);
+      if (!navigator.onLine) {
+        document.getElementById('connectionLed').className = 'connection-led led-red';
+        document.getElementById('connectionText').innerHTML = 'OFFLINE';
       }
-    }, 5000);
+    }, 1000);
 
   </script>
 </body>
