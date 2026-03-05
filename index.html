@@ -2,366 +2,661 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Life Jacket – Live Firebase Data</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Life Jacket · Command Center</title>
   <style>
+    /* ===== RESET & VARIABLES ===== */
     * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', monospace;
-    }
-    
-    body {
-      background: #0a0f1e;
-      color: #00ff9d;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    
-    .container {
-      max-width: 1200px;
+
+    :root {
+      --primary: #0a84ff;
+      --primary-glow: rgba(10, 132, 255, 0.3);
+      --success: #30d158;
+      --warning: #ff9f0a;
+      --danger: #ff453a;
+      --sos: #ff3b30;
+      --background: #000000;
+      --surface: #1c1c1e;
+      --surface-light: #2c2c2e;
+      --text-primary: #ffffff;
+      --text-secondary: #98989e;
+      --text-tertiary: #636366;
+      --border: #38383a;
+      --border-light: #48484a;
+    }
+
+    body {
+      background: var(--background);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+      font-weight: 400;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 0%, #a6c1ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--text-secondary);
+    }
+
+    /* ===== LAYOUT ===== */
+    .dashboard {
+      max-width: 1600px;
       margin: 0 auto;
     }
-    
-    h1 {
-      color: #00b8ff;
-      text-align: center;
-      font-size: 2em;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px rgba(0,184,255,0.5);
-    }
-    
-    .status-bar {
-      background: #111a28;
-      border: 1px solid #00b8ff;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
+
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-family: monospace;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
     }
-    
-    .connection-led {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 10px;
-    }
-    
-    .led-green {
-      background: #00ff00;
-      box-shadow: 0 0 15px #00ff00;
-      animation: pulse 2s infinite;
-    }
-    
-    .led-red {
-      background: #ff0000;
-      box-shadow: 0 0 15px #ff0000;
-    }
-    
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-    
-    .live-indicator {
+
+    .header-left {
       display: flex;
       align-items: center;
+      gap: 16px;
     }
-    
-    .timestamp {
-      color: #888;
-      font-size: 0.9em;
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), #5e5ce6);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 16px rgba(10, 132, 255, 0.2);
     }
-    
-    .data-panel {
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+    }
+
+    .status-led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success);
+      transition: all 0.3s ease;
+    }
+
+    .status-led.offline {
+      background: var(--danger);
+      box-shadow: 0 0 12px var(--danger);
+    }
+
+    /* ===== KPI GRID ===== */
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
     }
-    
-    .card {
-      background: #0f1624;
-      border: 1px solid #1e2a3a;
-      border-radius: 12px;
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
       padding: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
     }
-    
-    .card-title {
-      color: #00b8ff;
-      font-size: 1.2em;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #1e2a3a;
-      padding-bottom: 8px;
+
+    .kpi-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(10, 132, 255, 0.15);
+    }
+
+    .kpi-label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .kpi-unit {
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== MAIN GRID ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .card-header .badge {
+      background: var(--surface-light);
+      color: var(--text-secondary);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .card-content {
+      padding: 20px 24px;
+    }
+
+    /* ===== DATA ROWS ===== */
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-row:last-child {
+      border-bottom: none;
+    }
+
+    .data-label {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    
-    .data-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px dashed #1e2a3a;
-      font-family: 'Courier New', monospace;
+
+    .data-value {
+      font-weight: 600;
+      font-size: 1.125rem;
+      background: var(--surface-light);
+      padding: 4px 16px;
+      border-radius: 100px;
     }
-    
-    .data-row:last-child {
+
+    .state-badge {
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .state-normal {
+      background: rgba(48, 209, 88, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(48, 209, 88, 0.3);
+    }
+
+    .state-moving {
+      background: rgba(255, 159, 10, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(255, 159, 10, 0.3);
+    }
+
+    .state-danger {
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(255, 69, 58, 0.3);
+    }
+
+    .state-fall {
+      background: rgba(255, 59, 48, 0.15);
+      color: #ff9f0a;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    /* ===== FAULT LOG TABLE ===== */
+    .fault-log {
+      margin-top: 24px;
+    }
+
+    .log-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--border);
+      border-color: var(--primary);
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      border-color: rgba(255, 69, 58, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 69, 58, 0.15);
+    }
+
+    .table-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .fault-stats {
+      display: flex;
+      gap: 24px;
+      padding: 16px 24px;
+      background: var(--surface-light);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .stat-dot.danger { background: var(--danger); }
+    .stat-dot.warning { background: var(--warning); }
+    .stat-dot.sos { background: var(--sos); }
+    .stat-dot.fall { background: #ff9f0a; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 16px 24px;
+      background: var(--surface-light);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    tr:last-child td {
       border-bottom: none;
     }
-    
-    .label {
-      color: #8b9bb5;
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
     }
-    
-    .value {
-      color: #00ff9d;
-      font-weight: bold;
-      background: #1a2332;
-      padding: 2px 10px;
-      border-radius: 4px;
+
+    .fault-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-weight: 500;
+      font-size: 0.75rem;
     }
-    
-    .value.warning {
-      color: #ffaa00;
+
+    .type-danger {
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--danger);
     }
-    
-    .value.danger {
-      color: #ff4444;
+
+    .type-moving {
+      background: rgba(255, 159, 10, 0.15);
+      color: var(--warning);
     }
-    
-    .value.sos {
-      color: #ff0000;
-      animation: blink 1s infinite;
+
+    .type-fall {
+      background: rgba(255, 159, 10, 0.15);
+      color: #ff9f0a;
     }
-    
-    @keyframes blink {
-      0% { opacity: 1; background: #330000; }
-      50% { opacity: 0.7; background: #660000; }
-      100% { opacity: 1; background: #330000; }
+
+    .type-sos {
+      background: rgba(255, 59, 48, 0.2);
+      color: var(--sos);
+      animation: pulse 2s infinite;
     }
-    
-    .raw-data {
-      background: #0a0f1a;
-      border: 1px solid #1e2a3a;
-      border-radius: 8px;
-      padding: 20px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      color: #00ff9d;
-      margin-top: 20px;
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
     }
-    
-    .raw-header {
+
+    .map-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .map-link:hover {
+      text-decoration: underline;
+    }
+
+    .coordinates {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    .timestamp {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
-      color: #00b8ff;
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
     }
-    
-    .refresh-btn {
-      background: #1e2a3a;
-      color: #00b8ff;
-      border: 1px solid #00b8ff;
-      padding: 5px 15px;
-      border-radius: 4px;
-      cursor: pointer;
+
+    .firebase-path {
+      background: var(--surface);
+      padding: 6px 12px;
+      border-radius: 6px;
       font-family: monospace;
     }
-    
-    .refresh-btn:hover {
-      background: #2a3a4a;
+
+    /* ===== UTILITIES ===== */
+    .glow {
+      box-shadow: 0 0 20px var(--primary-glow);
     }
-    
-    .refresh-btn:active {
-      transform: scale(0.98);
-    }
-    
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .stat {
-      background: #0f1624;
-      border: 1px solid #1e2a3a;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-    }
-    
-    .stat-label {
-      color: #8b9bb5;
-      font-size: 0.8em;
-    }
-    
-    .stat-value {
-      color: #00ff9d;
-      font-size: 1.5em;
-      font-weight: bold;
-    }
-    
-    .footer {
-      text-align: center;
-      color: #4a5a6a;
-      margin-top: 30px;
-      font-size: 0.8em;
-      border-top: 1px solid #1e2a3a;
-      padding-top: 20px;
-    }
+
+    .text-success { color: var(--success); }
+    .text-warning { color: var(--warning); }
+    .text-danger { color: var(--danger); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🛟 SMART LIFE JACKET · LIVE FIREBASE DATA</h1>
-    
-    <!-- Status Bar -->
-    <div class="status-bar">
-      <div class="live-indicator">
-        <span class="connection-led led-green" id="connectionLed"></span>
-        <span id="connectionText">CONNECTED TO FIREBASE</span>
+  <div class="dashboard">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">🛟</div>
+        <div>
+          <h1>Smart Life Jacket</h1>
+          <h2>Command Center · Real-time Telemetry</h2>
+        </div>
       </div>
-      <div class="timestamp" id="lastUpdate">Waiting for data...</div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-label">Data Stream</div>
-        <div class="stat-value" id="dataRate">--</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">State</div>
-        <div class="stat-value" id="currentState">--</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">GPS</div>
-        <div class="stat-value" id="gpsStatus">--</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">SOS</div>
-        <div class="stat-value" id="sosStatus">--</div>
+      <div class="connection-status">
+        <span class="status-led" id="statusLed"></span>
+        <span id="connectionText">Establishing secure connection...</span>
+        <span style="color: var(--text-tertiary); margin-left: 12px;" id="lastUpdate"></span>
       </div>
     </div>
 
-    <!-- Live Data Panels -->
-    <div class="data-panel">
-      <!-- Vital Signs -->
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">System Status</div>
+        <div class="kpi-value" id="kpiState">--</div>
+        <div class="kpi-trend" id="kpiStateDetail">Motion state</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Heart Rate</div>
+        <div class="kpi-value" id="kpiBpm">--<span class="kpi-unit">BPM</span></div>
+        <div class="kpi-trend">Cardiac activity</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Temperature</div>
+        <div class="kpi-value" id="kpiTemp">--<span class="kpi-unit">°C</span></div>
+        <div class="kpi-trend">Body temperature</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Acceleration</div>
+        <div class="kpi-value" id="kpiAcc">--<span class="kpi-unit">g</span></div>
+        <div class="kpi-trend">Total G force</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">GPS Status</div>
+        <div class="kpi-value" id="kpiGps">--</div>
+        <div class="kpi-trend" id="kpiGpsDetail">No fix</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Live Telemetry Card -->
       <div class="card">
-        <div class="card-title">❤️ VITAL SIGNS</div>
-        <div class="data-row">
-          <span class="label">Heart Rate:</span>
-          <span class="value" id="live_bpm">---</span>
+        <div class="card-header">
+          <h3>📡 Live Telemetry</h3>
+          <span class="badge">Real-time</span>
         </div>
-        <div class="data-row">
-          <span class="label">Temperature:</span>
-          <span class="value" id="live_temp">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Buzzer:</span>
-          <span class="value" id="live_buzzer">---</span>
-        </div>
-      </div>
-
-      <!-- Motion Data -->
-      <div class="card">
-        <div class="card-title">⚡ MOTION</div>
-        <div class="data-row">
-          <span class="label">State:</span>
-          <span class="value" id="live_state">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Accel Total:</span>
-          <span class="value" id="live_acc_total">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Accel X/Y/Z:</span>
-          <span class="value" id="live_acc_xyz">---</span>
+        <div class="card-content">
+          <div class="data-row">
+            <span class="data-label">❤️ Heart Rate</span>
+            <span class="data-value" id="liveBpm">--- BPM</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">🌡️ Temperature</span>
+            <span class="data-value" id="liveTemp">--- °C</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">⚡ Acceleration X/Y/Z</span>
+            <span class="data-value" id="liveAccXYZ">---/---/--- g</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">🔄 Gyroscope X/Y/Z</span>
+            <span class="data-value" id="liveGyro">---/---/--- °/s</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">🔊 Buzzer</span>
+            <span class="data-value" id="liveBuzzer">---</span>
+          </div>
         </div>
       </div>
 
-      <!-- Gyroscope -->
+      <!-- SOS & Location Card -->
       <div class="card">
-        <div class="card-title">🔄 GYROSCOPE</div>
-        <div class="data-row">
-          <span class="label">Gyro X:</span>
-          <span class="value" id="live_gyro_x">---</span>
+        <div class="card-header">
+          <h3>🆘 Emergency & Location</h3>
+          <span class="badge" id="sosBadge">Standby</span>
         </div>
-        <div class="data-row">
-          <span class="label">Gyro Y:</span>
-          <span class="value" id="live_gyro_y">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Gyro Z:</span>
-          <span class="value" id="live_gyro_z">---</span>
-        </div>
-      </div>
-
-      <!-- GPS & SOS -->
-      <div class="card">
-        <div class="card-title">📍 GPS & SOS</div>
-        <div class="data-row">
-          <span class="label">SOS:</span>
-          <span class="value" id="live_sos">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Latitude:</span>
-          <span class="value" id="live_lat">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Longitude:</span>
-          <span class="value" id="live_lon">---</span>
-        </div>
-        <div class="data-row">
-          <span class="label">Map Link:</span>
-          <span class="value" id="live_map">
-            <a href="#" target="_blank" id="mapLink" style="color: #00b8ff; text-decoration: none;">🌍 Open</a>
-          </span>
+        <div class="card-content">
+          <div class="data-row">
+            <span class="data-label">🚨 SOS Status</span>
+            <span class="data-value" id="liveSos">OFF</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">📍 Latitude</span>
+            <span class="data-value" id="liveLat">--</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">📍 Longitude</span>
+            <span class="data-value" id="liveLon">--</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">🗺️ Google Maps</span>
+            <span class="data-value"><a href="#" target="_blank" id="mapLink" class="map-link">Open location</a></span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- RAW Firebase Data -->
-    <div class="raw-data">
-      <div class="raw-header">
-        <span>📦 RAW JSON FROM FIREBASE</span>
-        <button class="refresh-btn" id="refreshBtn">⟳ REFRESH</button>
+    <!-- Motion State Card -->
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="card-header">
+        <h3>🎯 Current Motion State</h3>
       </div>
-      <div id="rawJson" style="min-height: 200px;">
-        {
-          "waiting": "for data from ESP32..."
-        }
-      </div>
-    </div>
-
-    <!-- Data Log -->
-    <div class="raw-data" style="margin-top: 10px; max-height: 200px; overflow-y: auto;">
-      <div class="raw-header">
-        <span>📝 LIVE DATA STREAM</span>
-      </div>
-      <div id="dataLog" style="font-size: 12px;">
-        ---
+      <div class="card-content">
+        <div id="stateDisplay" class="state-badge state-normal" style="display: inline-block; min-width: 200px;">NORMAL</div>
+        <div style="margin-top: 12px; color: var(--text-secondary); font-size: 0.875rem;" id="stateDescription">
+          Normal operation, all systems nominal
+        </div>
       </div>
     </div>
 
+    <!-- Fault Log Section -->
+    <div class="fault-log">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <h2 style="color: var(--text-primary);">⚠️ Fault Log</h2>
+          <div class="fault-stats" style="margin: 0; padding: 0; background: transparent;">
+            <div class="stat-item">
+              <span class="stat-dot danger"></span>
+              <span id="dangerCount">0</span> DANGER
+            </div>
+            <div class="stat-item">
+              <span class="stat-dot warning"></span>
+              <span id="movingCount">0</span> MOVING
+            </div>
+            <div class="stat-item">
+              <span class="stat-dot fall"></span>
+              <span id="fallCount">0</span> FREE FALL
+            </div>
+            <div class="stat-item">
+              <span class="stat-dot sos"></span>
+              <span id="sosCount">0</span> SOS
+            </div>
+          </div>
+        </div>
+        <div class="log-controls">
+          <button class="btn" id="exportBtn">
+            <span>📥</span> Export CSV
+          </button>
+          <button class="btn btn-danger" id="clearBtn">
+            <span>🗑️</span> Clear Log
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Date</th>
+              <th>Fault Type</th>
+              <th>State</th>
+              <th>BPM</th>
+              <th>Temp</th>
+              <th>Accel (g)</th>
+              <th>Location</th>
+              <th>Coordinates</th>
+            </tr>
+          </thead>
+          <tbody id="faultTableBody">
+            <tr>
+              <td colspan="9" style="text-align: center; color: var(--text-tertiary); padding: 48px;">
+                No fault events recorded. System nominal.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
     <div class="footer">
-      🔥 Firebase: smart-life-jacket-35f2c-default-rtdb /smart_life_jacket/live
+      <div>© 2026 Smart Life Jacket · Industrial IoT</div>
+      <div class="firebase-path">firebase: /smart_life_jacket/live</div>
+      <div>v2.0.0 · Secure Real-time</div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCt9PG8MTj-WpTIetpdIoqg67SBnHtTAP8",
@@ -373,128 +668,276 @@
       appId: "1:485422580337:web:b9e2acb06f987d1bfb91d0"
     };
 
-    // Initialize
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const liveRef = ref(db, "smart_life_jacket/live");
 
-    // Data stream log
-    let dataLog = [];
-    let lastData = null;
-    let updateCount = 0;
+    // Fault log storage
+    let faultLog = [];
+    const MAX_LOG = 100;
+    let lastStates = {
+      sos: 'OFF',
+      danger: false,
+      movingHigh: false,
+      fall: false
+    };
 
-    function updateLiveData(data) {
+    // Statistics
+    let stats = {
+      danger: 0,
+      moving: 0,
+      fall: 0,
+      sos: 0
+    };
+
+    function getCurrentTimestamp() {
+      const d = new Date();
+      return {
+        time: d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        date: d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+        full: d.toISOString(),
+        timestamp: d.getTime()
+      };
+    }
+
+    function addFaultEvent(data, type) {
+      const now = getCurrentTimestamp();
+      
+      // Prevent duplicates within 10 seconds
+      const lastEvent = faultLog[faultLog.length - 1];
+      if (lastEvent && lastEvent.type === type && (now.timestamp - lastEvent.timestamp) < 10000) {
+        return;
+      }
+
+      const event = {
+        id: `${now.timestamp}-${type}`,
+        time: now.time,
+        date: now.date,
+        timestamp: now.timestamp,
+        type: type,
+        state: data.state || '--',
+        bpm: data.bpm || '--',
+        temp: data.temperature ? data.temperature.toFixed(1) : '--',
+        acc: data.acc_total ? data.acc_total.toFixed(3) : '--',
+        lat: data.lat || null,
+        lon: data.lon || null
+      };
+
+      faultLog.push(event);
+      if (faultLog.length > MAX_LOG) faultLog.shift();
+
+      // Update stats
+      if (type === 'DANGER') stats.danger++;
+      else if (type === 'MOVING') stats.moving++;
+      else if (type === 'FREE FALL') stats.fall++;
+      else if (type === 'SOS') stats.sos++;
+
+      renderFaultTable();
+      updateStats();
+    }
+
+    function renderFaultTable() {
+      const tbody = document.getElementById('faultTableBody');
+      
+      if (faultLog.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-tertiary); padding: 48px;">No fault events recorded. System nominal.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      [...faultLog].reverse().forEach(event => {
+        const typeClass = `fault-type type-${event.type.toLowerCase().replace(' ', '')}`;
+        const mapLink = (event.lat && event.lon) 
+          ? `<a href="https://www.google.com/maps?q=${event.lat},${event.lon}" target="_blank" class="map-link">📍 View</a>`
+          : '—';
+        const coords = (event.lat && event.lon) 
+          ? `<span class="coordinates">${event.lat.toFixed(6)}, ${event.lon.toFixed(6)}</span>`
+          : '—';
+
+        html += `<tr>
+          <td><span class="timestamp">${event.time}</span></td>
+          <td>${event.date}</td>
+          <td><span class="${typeClass}">${event.type}</span></td>
+          <td>${event.state}</td>
+          <td>${event.bpm}</td>
+          <td>${event.temp}°C</td>
+          <td>${event.acc}g</td>
+          <td>${mapLink}</td>
+          <td>${coords}</td>
+        </tr>`;
+      });
+      
+      tbody.innerHTML = html;
+    }
+
+    function updateStats() {
+      document.getElementById('dangerCount').textContent = stats.danger;
+      document.getElementById('movingCount').textContent = stats.moving;
+      document.getElementById('fallCount').textContent = stats.fall;
+      document.getElementById('sosCount').textContent = stats.sos;
+    }
+
+    function updateUI(data) {
       if (!data) return;
 
-      // Update timestamp
-      const now = new Date();
-      document.getElementById('lastUpdate').innerHTML = `Last update: ${now.toLocaleTimeString()}.${now.getMilliseconds()}`;
+      // Update KPI cards
+      document.getElementById('kpiState').textContent = data.state || '--';
+      document.getElementById('kpiBpm').innerHTML = (data.bpm || '--') + '<span class="kpi-unit">BPM</span>';
+      document.getElementById('kpiTemp').innerHTML = (data.temperature ? data.temperature.toFixed(1) : '--') + '<span class="kpi-unit">°C</span>';
+      document.getElementById('kpiAcc').innerHTML = (data.acc_total ? data.acc_total.toFixed(2) : '--') + '<span class="kpi-unit">g</span>';
       
-      // Update data rate
-      updateCount++;
-      document.getElementById('dataRate').innerHTML = `${updateCount} updates`;
+      // GPS Status
+      const hasGps = data.lat && data.lon;
+      document.getElementById('kpiGps').textContent = hasGps ? 'FIX' : 'NO FIX';
+      document.getElementById('kpiGpsDetail').textContent = hasGps ? `${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}` : 'No satellite fix';
 
-      // Update all live fields
-      document.getElementById('live_bpm').innerHTML = data.bpm ?? '--';
-      document.getElementById('live_temp').innerHTML = data.temperature ? data.temperature.toFixed(2) + '°C' : '--°C';
-      document.getElementById('live_buzzer').innerHTML = data.buzzer ?? '--';
-      
-      // State with color
-      const stateEl = document.getElementById('live_state');
-      const state = data.state || '--';
-      stateEl.innerHTML = state;
-      stateEl.className = 'value';
-      if (state === 'DANGER') stateEl.classList.add('danger');
-      else if (state === 'MOVING') stateEl.classList.add('warning');
-      else if (state === 'FREE FALL') stateEl.classList.add('danger');
-      
-      document.getElementById('currentState').innerHTML = state;
-
-      // Acceleration
-      document.getElementById('live_acc_total').innerHTML = data.acc_total ? data.acc_total.toFixed(3) + ' g' : '-- g';
+      // Live telemetry
+      document.getElementById('liveBpm').textContent = (data.bpm || '--') + ' BPM';
+      document.getElementById('liveTemp').textContent = (data.temperature ? data.temperature.toFixed(1) : '--') + ' °C';
       
       const accX = data.acc_x ? data.acc_x.toFixed(2) : '--';
       const accY = data.acc_y ? data.acc_y.toFixed(2) : '--';
       const accZ = data.acc_z ? data.acc_z.toFixed(2) : '--';
-      document.getElementById('live_acc_xyz').innerHTML = `${accX}/${accY}/${accZ}`;
-
-      // Gyroscope
-      document.getElementById('live_gyro_x').innerHTML = data.gyro_x ? data.gyro_x.toFixed(1) + '°/s' : '--';
-      document.getElementById('live_gyro_y').innerHTML = data.gyro_y ? data.gyro_y.toFixed(1) + '°/s' : '--';
-      document.getElementById('live_gyro_z').innerHTML = data.gyro_z ? data.gyro_z.toFixed(1) + '°/s' : '--';
+      document.getElementById('liveAccXYZ').textContent = `${accX}/${accY}/${accZ} g`;
+      
+      const gyroX = data.gyro_x ? data.gyro_x.toFixed(1) : '--';
+      const gyroY = data.gyro_y ? data.gyro_y.toFixed(1) : '--';
+      const gyroZ = data.gyro_z ? data.gyro_z.toFixed(1) : '--';
+      document.getElementById('liveGyro').textContent = `${gyroX}/${gyroY}/${gyroZ} °/s`;
+      
+      document.getElementById('liveBuzzer').textContent = data.buzzer || '--';
 
       // SOS
-      const sosEl = document.getElementById('live_sos');
       const sos = data.sos || 'OFF';
-      sosEl.innerHTML = sos;
-      sosEl.className = 'value';
-      if (sos === 'ON') {
-        sosEl.classList.add('sos');
-        document.getElementById('sosStatus').innerHTML = '🔴 ACTIVE';
-      } else {
-        document.getElementById('sosStatus').innerHTML = '⚪ INACTIVE';
-      }
+      document.getElementById('liveSos').textContent = sos;
+      document.getElementById('sosBadge').textContent = sos === 'ON' ? 'ACTIVE' : 'STANDBY';
+      document.getElementById('sosBadge').style.color = sos === 'ON' ? 'var(--sos)' : 'var(--text-secondary)';
 
       // GPS
-      const lat = data.lat ?? '--';
-      const lon = data.lon ?? '--';
-      document.getElementById('live_lat').innerHTML = typeof lat === 'number' ? lat.toFixed(6) : lat;
-      document.getElementById('live_lon').innerHTML = typeof lon === 'number' ? lon.toFixed(6) : lon;
+      const lat = data.lat || '--';
+      const lon = data.lon || '--';
+      document.getElementById('liveLat').textContent = typeof lat === 'number' ? lat.toFixed(6) : lat;
+      document.getElementById('liveLon').textContent = typeof lon === 'number' ? lon.toFixed(6) : lon;
       
-      // GPS Status
       if (lat !== '--' && lon !== '--') {
-        document.getElementById('gpsStatus').innerHTML = '🟢 FIX';
         document.getElementById('mapLink').href = `https://www.google.com/maps?q=${lat},${lon}`;
-      } else {
-        document.getElementById('gpsStatus').innerHTML = '🔴 NO FIX';
       }
 
-      // RAW JSON display
-      document.getElementById('rawJson').innerHTML = JSON.stringify(data, null, 2);
+      // Motion state display
+      const stateEl = document.getElementById('stateDisplay');
+      const stateDesc = document.getElementById('stateDescription');
+      stateEl.textContent = data.state || 'NORMAL';
+      
+      // Remove all state classes
+      stateEl.className = 'state-badge';
+      
+      if (data.state === 'NORMAL') {
+        stateEl.classList.add('state-normal');
+        stateDesc.textContent = 'Normal operation, all systems nominal';
+      } else if (data.state === 'MOVING') {
+        stateEl.classList.add('state-moving');
+        stateDesc.textContent = 'Subject in motion, monitoring actively';
+      } else if (data.state === 'DANGER') {
+        stateEl.classList.add('state-danger');
+        stateDesc.textContent = 'CRITICAL: High G-force detected';
+      } else if (data.state === 'FREE FALL') {
+        stateEl.classList.add('state-fall');
+        stateDesc.textContent = 'WARNING: Free fall condition';
+      }
 
-      // Add to data log
-      dataLog.unshift(`[${now.toLocaleTimeString()}.${now.getMilliseconds()}] ${JSON.stringify(data)}`);
-      if (dataLog.length > 10) dataLog.pop();
-      document.getElementById('dataLog').innerHTML = dataLog.join('<br>');
+      // Connection status
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+      document.getElementById('statusLed').className = 'status-led';
+      document.getElementById('connectionText').textContent = 'Real-time connection active';
 
-      lastData = data;
+      // Fault detection
+      const accTotal = data.acc_total || 0;
+      
+      // DANGER detection
+      if (data.state === 'DANGER' && !lastStates.danger) {
+        addFaultEvent(data, 'DANGER');
+        lastStates.danger = true;
+      } else if (data.state !== 'DANGER') {
+        lastStates.danger = false;
+      }
+      
+      // MOVING (high) detection
+      const isMovingHigh = (data.state === 'MOVING' && accTotal > 1.8);
+      if (isMovingHigh && !lastStates.movingHigh) {
+        addFaultEvent(data, 'MOVING');
+        lastStates.movingHigh = true;
+      } else if (!isMovingHigh) {
+        lastStates.movingHigh = false;
+      }
+      
+      // FREE FALL detection
+      if (data.state === 'FREE FALL' && !lastStates.fall) {
+        addFaultEvent(data, 'FREE FALL');
+        lastStates.fall = true;
+      } else if (data.state !== 'FREE FALL') {
+        lastStates.fall = false;
+      }
+      
+      // SOS detection
+      if (data.sos === 'ON' && lastStates.sos === 'OFF') {
+        addFaultEvent(data, 'SOS');
+      }
+      lastStates.sos = data.sos || 'OFF';
     }
 
-    // Live listener
+    // Firebase listener
     onValue(liveRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        updateLiveData(data);
-        document.getElementById('connectionLed').className = 'connection-led led-green';
-        document.getElementById('connectionText').innerHTML = 'CONNECTED TO FIREBASE';
+        updateUI(data);
       }
     }, (error) => {
       console.error('Firebase error:', error);
-      document.getElementById('connectionLed').className = 'connection-led led-red';
-      document.getElementById('connectionText').innerHTML = 'CONNECTION ERROR';
-      document.getElementById('rawJson').innerHTML = JSON.stringify({ error: error.message }, null, 2);
+      document.getElementById('statusLed').className = 'status-led offline';
+      document.getElementById('connectionText').textContent = 'Connection lost';
     });
 
-    // Manual refresh
-    document.getElementById('refreshBtn').addEventListener('click', async () => {
-      try {
-        const snapshot = await get(liveRef);
-        const data = snapshot.val();
-        if (data) {
-          updateLiveData(data);
-        }
-      } catch (error) {
-        console.error('Refresh error:', error);
+    // Export to CSV
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      if (faultLog.length === 0) {
+        alert('No fault data to export');
+        return;
+      }
+      
+      const headers = ['Time', 'Date', 'Type', 'State', 'BPM', 'Temp', 'Accel', 'Latitude', 'Longitude'];
+      const csvData = faultLog.map(e => [
+        e.time,
+        e.date,
+        e.type,
+        e.state,
+        e.bpm,
+        e.temp,
+        e.acc,
+        e.lat || '',
+        e.lon || ''
+      ]);
+      
+      const csv = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fault-log-${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`;
+      a.click();
+    });
+
+    // Clear log
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (confirm('Clear all fault log entries?')) {
+        faultLog = [];
+        stats = { danger: 0, moving: 0, fall: 0, sos: 0 };
+        renderFaultTable();
+        updateStats();
       }
     });
 
-    // Check connection status
-    setInterval(() => {
-      if (!navigator.onLine) {
-        document.getElementById('connectionLed').className = 'connection-led led-red';
-        document.getElementById('connectionText').innerHTML = 'OFFLINE';
-      }
-    }, 1000);
+    // Initial render
+    renderFaultTable();
 
   </script>
 </body>
